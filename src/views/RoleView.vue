@@ -1,0 +1,73 @@
+<template>
+  <div>
+    <el-button type="primary" @click="onAdd">新增角色</el-button>
+    <el-table :data="list" border style="width: 100%;margin-top:20px">
+      <el-table-column prop="roleId" label="ID" width="180" />
+      <el-table-column prop="roleName" label="角色名称" width="180" />
+      <el-table-column prop="authority" label="操作" >
+        <template #default="scope">
+          <el-button link size="small" type="primary" @click="changeRole(scope.row)">修改权限</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineComponent,onMounted, reactive, toRefs } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+// import { getRoleList } from '../request/api'
+import { InitData,ListInt } from '../type/role'
+import { useRouter } from 'vue-router'
+export default defineComponent({
+  setup () {
+    const data = reactive(new InitData())
+    const router = useRouter()
+    onMounted(()=>{
+      // getRoleList().then(res=>{
+      //   console.log(res)
+      //   data.list = res.data;
+      // })
+    })
+    // 添加
+    const onAdd = ()=>{
+      ElMessageBox.prompt('请输入角色名称', '添加', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    }).then(({ value }) => {
+      if(value){
+        data.list.push({
+          roleId: data.list.length+1,
+          roleName:value,
+          authority:[]
+        })
+      }
+        ElMessage({
+          type: 'success',
+          message: `${value}角色添加成功`,
+        })
+      }).catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消操作',
+        })
+      })
+      
+    }
+    const changeRole = (row:ListInt)=>{
+      router.push({
+        name:"authority",
+        query:{
+          id:row.roleId,
+          authority:row.authority.join(',')
+        }
+      })
+    }
+    return {...toRefs(data),onAdd,changeRole}
+  }
+})
+</script>
+
+<style scoped>
+
+</style>
